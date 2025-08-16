@@ -10,6 +10,11 @@ let skippedLogs = 0;
 let quickMode = true;
 
 function loggerPrinter(){
+   if(skippedLogs != 0){
+    print("#:\t[SKIPPED] " + skippedLogs + " LAST LOGS" );
+    skippedLogs = 0;
+  }
+  
   if(logs.length == 0){
     if(quickMode){
       quickMode = false;
@@ -25,10 +30,7 @@ function loggerPrinter(){
   }
     
   print(logs[0].msg[0]);
-  if(skippedLogs != 0){
-    print("[SKIPPED] " + skippedLogs + " LOGS" );
-    skippedLogs = 0;
-  }
+  
   logs[0].msg.splice(0, 1);
   if(logs[0].msg.length == 0){
     logs.splice(0, 1) 
