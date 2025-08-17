@@ -136,5 +136,3 @@ function log(topic, msg){
   };
   logs.push(log);
 }
-
-Shelly.addStatusHandler(handleStatusEvent);
