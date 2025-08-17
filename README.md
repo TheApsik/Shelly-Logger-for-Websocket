@@ -1,6 +1,22 @@
 # Shelly-Logger-for-Websocket
 This Script implement logger for websocket that should be alternative option for function print() that has problem with buffer size.
 
+## How to use
+Logger has to overloads. You can use ```log(msg)```:
+```javascript
+log("Hello World!");
+
+// Print
+// 0:   Hello World!
+```
+Or you can use ```log(topic, msg)```:
+```javascript
+log("Start up", "Hello World!");
+
+// Print
+// 0:   [Start up] Hello World!
+```
+
 ## The problem
 Example:
 ```javascript
@@ -9,7 +25,7 @@ for(let i = 0; i<10; i++){
 }
 ```
 
-You will get output:
+Get output:
 ```
 4
 5
@@ -18,27 +34,27 @@ You will get output:
 8
 9
 ```
-Your are missing <ins>**first 4 numbers**</ins> due to buffer limitations.
+Console is missing <ins>**first 4 numbers**</ins> due to buffer limitations.
 
 When you use ```log()```:
 
 ```javascript
 for(let i = 0; i<10; i++){
-  log("logger", i);
+  log(i);
 }
 ```
 You will get correct output:
 ```
-0:	 [logger] 0
-1:	 [logger] 1
-2:	 [logger] 2
-3:	 [logger] 3
-4:	 [logger] 4
-5:	 [logger] 5
-6:	 [logger] 6
-7:	 [logger] 7
-8:	 [logger] 8
-9:	 [logger] 9
+0:	 0
+1:	 1
+2:	 2
+3:	 3
+4:	 4
+5:	 5
+6:	 6
+7:	 7
+8:	 8
+9:	 9
 ```
 ## JSON format
 Logger also support JSON format. You can use it like this:
@@ -82,7 +98,7 @@ for(let i = 0; i<20; i++){
 ```
 Output:
 ```
-#:	[SKIPPED] 9 LAST LOGS
+#:	 [SKIPPED] 9 LAST LOGS
 0:	 [logger] 0
 1:	 [logger] 1
 2:	 [logger] 2
