@@ -1,13 +1,12 @@
 const MAX_NUMBER_OF_CHARS_IN_ROW = 128; // websocked has limit for size of the line don't change it
 const ENABLE_LOGER = true;
-const logs = [];
 const LOG_BUFFER = 10; //max limit of queued messages
-const QUICK_MODE = 10; //delay between msges queued
-const SLOW_MODE = 200; //when queue is empty checking for msges is slower
+const LOG_PRINT_SPEED = 10; //delay between msges queued
 
+const logs = [];
 let printedLogs = 0;
 let skippedLogs = 0;
-let quickMode = true;
+let logTimer = undefined;
 
 function loggerPrinter(){
    if(skippedLogs != 0){
@@ -16,17 +15,11 @@ function loggerPrinter(){
   }
   
   if(logs.length == 0){
-    if(quickMode){
-      quickMode = false;
-      Timer.clear(timer);
-      timer = Timer.set(SLOW_MODE, true, loggerPrinter);
+    if(logTimer != undefined){
+      Timer.clear(logTimer);
+	  logTimer = undefined;
     }
     return;
-  }
-  if(logs.length != 0 && !quickMode){
-    quickMode = true;
-    Timer.clear(timer);
-    timer = Timer.set(QUICK_MODE, true, loggerPrinter);
   }
     
   print(logs[0].msg[0]);
@@ -38,8 +31,6 @@ function loggerPrinter(){
   }
 }
 
-let timer = ENABLE_LOGER ? Timer.set(QUICK_MODE, true, loggerPrinter) : undefined;
-
 function indentation(index){
   let ind = " ";
   for(let i = 0; i< index; i++){
@@ -50,8 +41,10 @@ function indentation(index){
 
 function prettyJSON(index, topic, text){
   let js = [];
-  js.push(index + ":\t [" + topic + "] JSON");
-  let line = " ";
+  let line = ""+index;
+  line += topic != undefined ? ":\t [" + topic + "] JSON" : ":\t JSON";
+  js.push(line);
+  line = " ";
   let ind = [];
   for(let i = 0; i < text.length; i++){
     let c = text[i];
@@ -84,7 +77,8 @@ function prettyJSON(index, topic, text){
 
 function prettyText(index, topic, text){
   let pText = [];
-  let line = index + ":\t [" + topic + "] ";
+  let line = ""+index;
+  line += topic != undefined ? ":\t [" + topic + "] " : ":\t ";
   let ind = Math.floor(line.length/3);
   let word = "";
   if(line.length + text.length <= MAX_NUMBER_OF_CHARS_IN_ROW){
@@ -119,13 +113,28 @@ function prettyLog(index, topic, text){
 function log(topic, msg){
   if(!ENABLE_LOGER)
     return;
-  if(typeof msg != "string" || !ENABLE_LOGER)
+
+  if(logTimer == undefined){
+	logTimer = Timer.set(LOG_PRINT_SPEED, true, loggerPrinter);
+  }
+
+  if(msg == undefined){
+	msg = topic;
+	topic = undefined;
+  }
+  
+  if(typeof msg != "string")
     msg += '';
     
   if(logs.length > LOG_BUFFER){
     ++skippedLogs;
+	++printedLogs;
     return;
   }
-  let log = {msg: prettyLog(printedLogs++, topic, msg)};
+  let log = {
+	  msg: prettyLog(printedLogs++, topic, msg)
+  };
   logs.push(log);
 }
+
+Shelly.addStatusHandler(handleStatusEvent);
